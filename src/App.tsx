@@ -20,9 +20,12 @@ import robotImage from './assets/images/repair_robot_1783173638808.jpg';
 import MoodScreen from './components/MoodScreen';
 import JoinNowScreen from './components/JoinNowScreen';
 import HistoryScreen from './components/HistoryScreen';
+import MultimodalScreen from './components/MultimodalScreen';
+import TalkScreen from './components/TalkScreen';
+import CaptureScreen from './components/CaptureScreen';
 
 export default function App() {
-  const [currentView, setCurrentView] = useState<'landing' | 'mood' | 'join-now' | 'history'>('landing');
+  const [currentView, setCurrentView] = useState<'landing' | 'multimodal' | 'mood' | 'talk' | 'capture' | 'join-now' | 'history'>('landing');
   const [showMoodCheck, setShowMoodCheck] = useState(false);
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
   const [isWaving, setIsWaving] = useState(false);
@@ -40,10 +43,29 @@ export default function App() {
     { name: 'Anxious', icon: MessageCircle, color: 'bg-purple-100 text-purple-600 border-purple-300' },
   ];
 
+  if (currentView === 'multimodal') {
+    return (
+      <MultimodalScreen
+        onBack={() => setCurrentView('landing')}
+        onJustTap={() => setCurrentView('mood')}
+        onTalkToMe={() => setCurrentView('talk')}
+        onSeeMe={() => setCurrentView('capture')}
+      />
+    );
+  }
+
+  if (currentView === 'talk') {
+    return <TalkScreen onBack={() => setCurrentView('multimodal')} />;
+  }
+
+  if (currentView === 'capture') {
+    return <CaptureScreen onBack={() => setCurrentView('multimodal')} />;
+  }
+
   if (currentView === 'mood') {
     return (
       <MoodScreen 
-        onBack={() => setCurrentView('landing')} 
+        onBack={() => setCurrentView('multimodal')} 
         onShowHistory={() => setCurrentView('history')}
       />
     );
@@ -175,7 +197,7 @@ export default function App() {
               {/* Electric Blue Tactile Button */}
               <motion.button 
                 onClick={() => {
-                  setCurrentView('mood');
+                  setCurrentView('multimodal');
                 }}
                 className="tactile-button w-full bg-[#2962FF] hover:bg-[#1a52ef] text-white py-6 px-10 md:py-7 md:px-12 rounded-full font-black text-2xl md:text-3xl tracking-tight shadow-[0_8px_0_0_#0033b3] cursor-pointer"
                 whileHover={{ scale: 1.02 }}

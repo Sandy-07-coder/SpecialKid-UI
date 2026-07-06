@@ -1,96 +1,367 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import Lottie from 'lottie-react';
 import moodRobotAnimation from '../assets/lottie/happy-robot.json';
+import sadRobotAnimation from '../../lotte files/sad robot lotte.json';
+import angryRobotAnimation from '../../lotte files/angry robot lotte.json';
+import tiredRobotAnimation from '../../lotte files/tired robot lotte.json';
 
 interface MoodScreenProps {
   onBack: () => void;
   onShowHistory: () => void;
 }
 
+// ─── Mood data ────────────────────────────────────────────────────────────────
+interface MoodConfig {
+  id: string;
+  label: string;
+  emoji: string;
+  bg: string;
+  blob1: string;
+  blob2: string;
+  btnBg: string;
+  btnText: string;
+  btnShadow: string;
+  btnBorder: string;
+  accentText: string;
+  btnBorderBottom?: string;
+  angryGlow?: boolean;
+}
+
+const MOODS: MoodConfig[] = [
+  {
+    id: 'happy',
+    label: 'Happy!',
+    emoji: '😊',
+    bg: '#f8f5ff',
+    blob1: 'rgba(128,155,255,0.18)',
+    blob2: 'rgba(253,212,0,0.08)',
+    btnBg: '#004be2',
+    btnText: '#f2f1ff',
+    btnShadow: '#002376',
+    btnBorder: 'rgba(255,255,255,0.15)',
+    accentText: '#004be2',
+  },
+  {
+    id: 'sad',
+    label: 'Sad',
+    emoji: '😢',
+    bg: '#f8f5ff',
+    blob1: 'rgba(128,155,255,0.12)',
+    blob2: 'rgba(209,208,255,0.25)',
+    btnBg: '#dbd9ff',
+    btnText: '#2a2b51',
+    btnShadow: '#0041c7',
+    btnBorder: 'transparent',
+    btnBorderBottom: '8px solid #0041c7',
+    accentText: '#004be2',
+  },
+  {
+    id: 'angry',
+    label: 'Angry',
+    emoji: '😡',
+    bg: '#f8f5ff',
+    blob1: 'rgba(128,155,255,0.10)',
+    blob2: 'rgba(253,212,0,0.05)',
+    btnBg: '#004be2',
+    btnText: '#ffffff',
+    btnShadow: '#002376',
+    btnBorder: 'rgba(255,255,255,0.2)',
+    accentText: '#004be2',
+    angryGlow: true,
+  },
+  {
+    id: 'tired',
+    label: 'Tired',
+    emoji: '🥱',
+    bg: '#f8f5ff',
+    blob1: 'rgba(232,230,255,0.6)',
+    blob2: 'rgba(128,155,255,0.08)',
+    btnBg: '#dbd9ff',
+    btnText: '#2a2b51',
+    btnShadow: '#809bff',
+    btnBorder: '#809bff',
+    accentText: '#004be2',
+  },
+] as const;
+
+// ─── Shared SVG robot illustrations ──────────────────────────────────────────
+
+/** Happy slide: uses the lottie animation already in the project */
+const HappyRobot: React.FC = () => (
+  <div className="w-full h-full flex items-center justify-center">
+    <Lottie animationData={moodRobotAnimation} loop className="w-full h-full robot-cutout" />
+  </div>
+);
+
+/** Sad slide: uses the sad lottie from lotte files */
+const SadRobot: React.FC = () => (
+  <div className="w-full h-full flex items-center justify-center">
+    <Lottie animationData={sadRobotAnimation} loop className="w-full h-full robot-cutout" />
+  </div>
+);
+
+/** Angry slide: uses the angry lottie from lotte files */
+const AngryRobot: React.FC = () => (
+  <div className="w-full h-full flex items-center justify-center">
+    <Lottie animationData={angryRobotAnimation} loop className="w-full h-full robot-cutout" />
+  </div>
+);
+
+/** Tired slide: uses the tired lottie from lotte files */
+const TiredRobot: React.FC = () => (
+  <div className="w-full h-full flex items-center justify-center">
+    <Lottie animationData={tiredRobotAnimation} loop className="w-full h-full robot-cutout" />
+  </div>
+);
+
+const ROBOT_COMPONENTS = [HappyRobot, SadRobot, AngryRobot, TiredRobot];
+
+// ─── Carousel slide directions ────────────────────────────────────────────────
+const variants = {
+  enter: (dir: number) => ({ x: dir > 0 ? '100%' : '-100%', opacity: 0 }),
+  center: { x: 0, opacity: 1 },
+  exit: (dir: number) => ({ x: dir > 0 ? '-100%' : '100%', opacity: 0 }),
+};
+
+// ─── Component ────────────────────────────────────────────────────────────────
 export const MoodScreen: React.FC<MoodScreenProps> = ({ onBack, onShowHistory }) => {
+  const [[activeIndex, direction], setPage] = useState<[number, number]>([0, 0]);
+  const dragStartX = useRef<number>(0);
+
+  const navigate = (newIndex: number) => {
+    const dir = newIndex > activeIndex ? 1 : -1;
+    const clamped = Math.max(0, Math.min(MOODS.length - 1, newIndex));
+    setPage([clamped, dir]);
+  };
+
+  const handleDragStart = (_: unknown, info: { point: { x: number } }) => {
+    dragStartX.current = info.point.x;
+  };
+
+  const handleDragEnd = (_: unknown, info: { offset: { x: number } }) => {
+    if (info.offset.x < -60 && activeIndex < MOODS.length - 1) navigate(activeIndex + 1);
+    else if (info.offset.x > 60 && activeIndex > 0) navigate(activeIndex - 1);
+  };
+
+  const mood = MOODS[activeIndex];
+  const RobotEl = ROBOT_COMPONENTS[activeIndex];
+
   return (
-    <div className="bg-surface text-on-surface min-h-screen flex flex-col selection:bg-primary-container selection:text-on-primary-container overflow-hidden font-sans">
-      {/* TopNavBar */}
-      <header className="w-full top-0 z-50 bg-[#f8f5ff]/80 backdrop-blur-md flex justify-between items-center px-8 py-6 fixed">
-        <div className="flex items-center gap-2 cursor-pointer" onClick={onBack}>
-          <span className="font-black text-2xl tracking-tighter text-[#2a2b51]">
-            RePaIR<span className="text-[#2962FF]">.</span>
+    <div
+      className="min-h-screen flex flex-col overflow-hidden font-sans"
+      style={{ background: mood.bg, transition: 'background 0.4s ease', fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+    >
+      {/* ── Top Nav ─────────────────────────────────────────────────────────── */}
+      <header
+        className="w-full fixed top-0 z-50 flex justify-between items-center px-8 py-5"
+        style={{ background: 'rgba(248,245,255,0.85)', backdropFilter: 'blur(12px)' }}
+      >
+        <div className="flex items-center gap-2 cursor-pointer select-none" onClick={onBack}>
+          <span className="font-black text-2xl tracking-tighter" style={{ color: '#2a2b51' }}>
+            RePaIR<span style={{ color: '#2962FF' }}>.</span>
           </span>
         </div>
-        <div className="flex items-center gap-6">
-          <button className="text-[#575881] hover:opacity-80 transition-opacity active:scale-95 duration-200 cursor-pointer">
+        <div className="flex items-center gap-5">
+          <button className="hover:opacity-70 transition-opacity active:scale-95 cursor-pointer" style={{ color: '#575881' }}>
             <span className="material-symbols-outlined">settings</span>
           </button>
-          <button className="text-[#575881] hover:opacity-80 transition-opacity active:scale-95 duration-200 cursor-pointer">
+          <button className="hover:opacity-70 transition-opacity active:scale-95 cursor-pointer" style={{ color: '#575881' }}>
             <span className="material-symbols-outlined">help</span>
           </button>
-          <div className="w-10 h-10 rounded-full bg-surface-container-highest overflow-hidden border border-outline-variant">
-            <img 
-              alt="User Profile Avatar" 
-              className="w-full h-full object-cover" 
+          <div className="w-10 h-10 rounded-full overflow-hidden border-2" style={{ borderColor: '#dbd9ff' }}>
+            <img
+              alt="User Profile Avatar"
+              className="w-full h-full object-cover"
               src="https://lh3.googleusercontent.com/aida-public/AB6AXuC1-8xXu2ZbTKNN5K9hgC4lQ9NR0zBNrfrcZg9m4pP4e-iDLz3YYqvsdcOCH676B7xlZCJvF39-kQEuFcPmSvg4z7obOBuI08zztgPMgEoKpplnlJseDnCXzrsfV--FqAr7AhvQm_IQK-THR3omjpy0CoJnCE4iBrIPiNSKvVgTJ0ZO9FBlcqBrgUY3giC4JQ-mZ8jrr5hisxjfGkqQ7nxUqiD_jWxttEVd8iiRVkEq-1-LAY0BRTSR5MnYwwtPxUMF-elXnvudxTll"
             />
           </div>
         </div>
       </header>
 
-      {/* Main Content Canvas */}
-      <main className="flex-grow flex flex-col items-center justify-center px-6 relative overflow-hidden mt-20 mb-20">
-        {/* Floating decorative blobs for kinetic feel */}
-        <div className="absolute top-[-10%] left-[-10%] w-64 h-64 bg-primary-container/20 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-[20%] right-[-5%] w-80 h-80 bg-secondary-container/10 rounded-full blur-3xl"></div>
+      {/* ── Main ────────────────────────────────────────────────────────────── */}
+      <main className="flex-grow flex flex-col items-center justify-center px-6 relative overflow-hidden mt-20 mb-24">
+        {/* Decorative blobs */}
+        <div
+          className="absolute top-[-8%] left-[-8%] w-64 h-64 rounded-full blur-3xl pointer-events-none"
+          style={{ background: mood.blob1 }}
+        />
+        <div
+          className="absolute bottom-[20%] right-[-5%] w-80 h-80 rounded-full blur-3xl pointer-events-none"
+          style={{ background: mood.blob2 }}
+        />
 
-        {/* Hero Content Wrapper */}
-        <div className="max-w-6xl w-full flex flex-col items-center justify-center relative z-10">
-          <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-on-surface leading-tight mb-12 md:mb-16 text-center">
-            How is your <span className="text-primary">mood</span> today?
-          </h1>
+        {/* Title */}
+        <h1
+          className="font-extrabold tracking-tight leading-tight text-center relative z-10 mb-10"
+          style={{ color: '#2a2b51', fontSize: 'clamp(2rem, 6vw, 4rem)' }}
+        >
+          How is your <span style={{ color: mood.accentText }}>mood</span> today?
+        </h1>
 
-          {/* Interaction Zone */}
-          <div className="flex flex-col md:flex-row items-center justify-center gap-12 md:gap-20">
-            {/* Character Illustration */}
-            <div className="w-80 h-80 md:w-[500px] md:h-[500px] flex items-center justify-center">
-              <Lottie 
-                animationData={moodRobotAnimation} 
-                loop={true} 
-                className="w-full h-full"
-              />
-            </div>
+        {/* Carousel viewport */}
+        <div className="relative w-full max-w-5xl overflow-hidden" style={{ minHeight: '420px' }}>
 
-            {/* Primary Action Button */}
-            <div className="flex flex-col items-center">
-              <button 
-                className="group relative bg-primary text-on-primary text-3xl md:text-5xl font-black px-14 py-8 rounded-full bubble-shadow active:box-shadow-2 active:translate-y-1.5 transition-all duration-200 hover:scale-[1.05] flex items-center gap-4 cursor-pointer"
+          {/* Prev arrow */}
+          {activeIndex > 0 && (
+            <button
+              onClick={() => navigate(activeIndex - 1)}
+              className="absolute left-0 top-1/2 -translate-y-1/2 z-30 flex items-center justify-center w-12 h-12 rounded-full cursor-pointer hover:scale-110 transition-transform"
+              style={{ background: 'rgba(219,217,255,0.8)', color: '#004be2' }}
+              aria-label="Previous mood"
+            >
+              <span className="material-symbols-outlined text-3xl">chevron_left</span>
+            </button>
+          )}
+
+          {/* Next arrow */}
+          {activeIndex < MOODS.length - 1 && (
+            <button
+              onClick={() => navigate(activeIndex + 1)}
+              className="absolute right-0 top-1/2 -translate-y-1/2 z-30 flex items-center justify-center w-12 h-12 rounded-full cursor-pointer hover:scale-110 transition-transform"
+              style={{ background: 'rgba(219,217,255,0.8)', color: '#004be2' }}
+              aria-label="Next mood"
+            >
+              <span className="material-symbols-outlined text-3xl">chevron_right</span>
+            </button>
+          )}
+
+          <AnimatePresence custom={direction} mode="popLayout">
+            <motion.div
+              key={activeIndex}
+              custom={direction}
+              variants={variants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{ type: 'spring', stiffness: 300, damping: 35 }}
+              drag="x"
+              dragConstraints={{ left: 0, right: 0 }}
+              dragElastic={0.15}
+              onDragStart={handleDragStart}
+              onDragEnd={handleDragEnd}
+              className="w-full flex flex-col md:flex-row items-center justify-center gap-12 md:gap-20 px-14 cursor-grab active:cursor-grabbing select-none"
+              style={{ minHeight: '400px' }}
+            >
+              {/* Robot illustration */}
+              <div
+                className="relative group flex-shrink-0"
+                style={{ width: 'clamp(220px, 35vw, 380px)', height: 'clamp(220px, 35vw, 380px)' }}
               >
-                <span aria-label="happy emoji" className="text-4xl md:text-6xl" role="img">😊</span>
-                Happy!
-              </button>
-            </div>
-          </div>
+                {/* Mood-specific ambient glow */}
+                <div
+                  className="absolute -inset-6 rounded-full blur-3xl opacity-40 pointer-events-none group-hover:opacity-60 transition-opacity duration-700"
+                  style={{ background: mood.blob1 }}
+                />
+                <div className="relative w-full h-full z-10">
+                  <RobotEl />
+                </div>
+              </div>
+
+              {/* Mood action button */}
+              <div className="flex flex-col items-center">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.97, y: 4 }}
+                  className="relative flex items-center gap-4 px-12 py-7 rounded-full font-black overflow-hidden cursor-pointer"
+                  style={{
+                    background: mood.btnBg,
+                    color: mood.btnText,
+                    fontSize: 'clamp(1.6rem, 3vw, 2.8rem)',
+                    boxShadow: `0 8px 0px ${mood.btnShadow}${mood.angryGlow ? ', 0 20px 50px -15px rgba(41,98,255,0.3)' : ''}`,
+                    border: mood.btnBorderBottom ? 'none' : `4px solid ${mood.btnBorder}`,
+                    borderBottom: mood.btnBorderBottom ?? undefined,
+                  }}
+                >
+                  {/* Inner shine overlay for angry */}
+                  {mood.id === 'angry' && (
+                    <div
+                      className="absolute top-2 left-6 right-6 h-3 rounded-full blur-sm pointer-events-none"
+                      style={{ background: 'rgba(255,255,255,0.18)' }}
+                    />
+                  )}
+                  {/* Tired shimmer overlay */}
+                  {mood.id === 'tired' && (
+                    <div
+                      className="absolute inset-0 pointer-events-none"
+                      style={{ background: 'rgba(128,155,255,0.10)' }}
+                    />
+                  )}
+                  <span className="text-5xl md:text-6xl" role="img" aria-label={mood.label + ' emoji'}>
+                    {mood.emoji}
+                  </span>
+                  <span className="relative z-10">{mood.label}</span>
+                </motion.button>
+              </div>
+            </motion.div>
+          </AnimatePresence>
         </div>
+
+        {/* ── Dot indicators ───────────────────────────────────────────────── */}
+        <div className="flex items-center gap-3 mt-8 z-10">
+          {MOODS.map((m, i) => (
+            <button
+              key={m.id}
+              onClick={() => navigate(i)}
+              aria-label={`Go to ${m.label} slide`}
+              className="rounded-full transition-all duration-300 cursor-pointer"
+              style={{
+                width: i === activeIndex ? '32px' : '10px',
+                height: '10px',
+                background: i === activeIndex ? '#004be2' : '#dbd9ff',
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Swipe hint */}
+        <p className="mt-4 text-sm font-medium opacity-40 select-none" style={{ color: '#575881' }}>
+          ← swipe or tap arrows to explore moods →
+        </p>
       </main>
 
-      {/* BottomNavBar */}
-      <nav className="fixed bottom-0 left-0 w-full z-50 flex justify-center gap-12 items-center px-6 pb-8 pt-4 bg-white/80 backdrop-blur-xl shadow-[0_-10px_40px_rgba(42,43,81,0.1)] rounded-t-[3rem] border-t border-surface-container-highest">
-        {/* Item 1: Mood */}
-        <a 
-          className="flex flex-col items-center justify-center bg-surface-variant text-primary rounded-full px-8 py-2 transition-all duration-300 active:translate-y-0.5" 
+      {/* ── Bottom Nav ──────────────────────────────────────────────────────── */}
+      <nav
+        className="fixed bottom-0 left-0 w-full z-50 flex justify-center gap-12 items-center px-6 pb-8 pt-4 rounded-t-[3rem] border-t"
+        style={{
+          background: 'rgba(255,255,255,0.85)',
+          backdropFilter: 'blur(16px)',
+          boxShadow: '0 -10px 40px rgba(42,43,81,0.08)',
+          borderColor: 'rgba(219,217,255,0.6)',
+        }}
+      >
+        <a
           href="#"
-          onClick={(e) => { e.preventDefault(); }}
+          className="flex flex-col items-center justify-center rounded-full px-8 py-2 transition-all duration-300 active:translate-y-0.5"
+          style={{ background: '#dbd9ff', color: '#2962FF' }}
+          onClick={(e) => e.preventDefault()}
         >
           <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>mood</span>
           <span className="text-[12px] font-semibold">Mood</span>
         </a>
-        {/* Item 2: History */}
-        <a 
-          className="flex flex-col items-center justify-center text-on-surface-variant px-8 py-2 hover:bg-surface-container-low rounded-full transition-all duration-300 active:translate-y-0.5 pointer-events-auto cursor-pointer" 
+        <a
           href="#"
+          className="flex flex-col items-center justify-center px-8 py-2 rounded-full transition-all duration-300 active:translate-y-0.5 cursor-pointer hover:bg-[#f2efff]"
+          style={{ color: '#575881' }}
           onClick={(e) => { e.preventDefault(); onShowHistory(); }}
         >
           <span className="material-symbols-outlined">calendar_month</span>
           <span className="text-[12px] font-semibold">History</span>
         </a>
       </nav>
+
+      <style>{`
+        .robot-cutout {
+          background: transparent !important;
+          mix-blend-mode: multiply;
+          isolation: isolate;
+        }
+
+        @keyframes tiredSway {
+          0%, 100% { transform: rotate(-1deg); }
+          50%       { transform: rotate(1deg); }
+        }
+      `}</style>
     </div>
   );
 };

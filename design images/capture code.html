@@ -1,0 +1,223 @@
+<!DOCTYPE html><html class="light" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>JoyLink - Magic Mirror</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&amp;family=Atkinson+Hyperlegible+Next:wght@400;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary": "#705d00",
+                    "on-secondary-fixed": "#221b00",
+                    "on-primary": "#ffffff",
+                    "tertiary": "#006465",
+                    "inverse-primary": "#c1c1ff",
+                    "surface-container": "#eaedf9",
+                    "primary-fixed": "#e1e0ff",
+                    "primary": "#4343d5",
+                    "on-primary-fixed-variant": "#2e2bc2",
+                    "error": "#ba1a1a",
+                    "on-surface": "#171c24",
+                    "on-error": "#ffffff",
+                    "inverse-on-surface": "#edf0fc",
+                    "error-container": "#ffdad6",
+                    "primary-fixed-dim": "#c1c1ff",
+                    "secondary-container": "#fdd400",
+                    "surface": "#f9f9ff",
+                    "surface-bright": "#f9f9ff",
+                    "surface-container-low": "#f0f3ff",
+                    "primary-container": "#5d5fef",
+                    "surface-container-highest": "#dfe2ee",
+                    "on-background": "#171c24",
+                    "on-secondary-container": "#6f5c00",
+                    "surface-variant": "#dfe2ee",
+                    "on-tertiary-fixed-variant": "#004f50",
+                    "on-primary-container": "#faf7ff",
+                    "on-primary-fixed": "#07006c",
+                    "inverse-surface": "#2c3039",
+                    "tertiary-fixed": "#56f9f9",
+                    "background": "#f9f9ff",
+                    "on-tertiary-container": "#dbfffe",
+                    "secondary-fixed-dim": "#e9c400",
+                    "on-surface-variant": "#464555",
+                    "on-tertiary": "#ffffff",
+                    "on-error-container": "#93000a",
+                    "surface-container-high": "#e5e8f4",
+                    "outline-variant": "#c7c4d7",
+                    "secondary-fixed": "#ffe170",
+                    "on-tertiary-fixed": "#002020",
+                    "surface-container-lowest": "#ffffff",
+                    "tertiary-container": "#007f80",
+                    "surface-tint": "#4849da",
+                    "on-secondary-fixed-variant": "#544600",
+                    "outline": "#767586",
+                    "surface-dim": "#d6dae5",
+                    "tertiary-fixed-dim": "#26dcdd",
+                    "on-secondary": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "sm": "12px",
+                    "margin-mobile": "16px",
+                    "gutter": "24px",
+                    "xs": "4px",
+                    "base": "8px",
+                    "lg": "48px",
+                    "margin-desktop": "64px",
+                    "xl": "80px",
+                    "md": "24px"
+            },
+            "fontFamily": {
+                    "label-bold": ["Atkinson Hyperlegible Next"],
+                    "button-text": ["Plus Jakarta Sans"],
+                    "body-lg": ["Atkinson Hyperlegible Next"],
+                    "headline-lg-mobile": ["Plus Jakarta Sans"],
+                    "headline-md": ["Plus Jakarta Sans"],
+                    "headline-lg": ["Plus Jakarta Sans"]
+            },
+            "fontSize": {
+                    "label-bold": ["18px", {"lineHeight": "1.4", "letterSpacing": "0.01em", "fontWeight": "700"}],
+                    "button-text": ["22px", {"lineHeight": "1.0", "fontWeight": "700"}],
+                    "body-lg": ["20px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "headline-lg-mobile": ["32px", {"lineHeight": "1.2", "fontWeight": "800"}],
+                    "headline-md": ["28px", {"lineHeight": "1.3", "fontWeight": "700"}],
+                    "headline-lg": ["40px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "800"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+      .chunky-border {
+        border-bottom-width: 6px;
+        transition: transform 0.1s ease-in-out, border-bottom-width 0.1s ease-in-out;
+      }
+      .chunky-border:active {
+        transform: translateY(4px);
+        border-bottom-width: 2px;
+      }
+      .viewfinder-glow {
+        box-shadow: 0 0 40px rgba(86, 249, 249, 0.3);
+      }
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .filling-icon {
+        font-variation-settings: 'FILL' 1;
+      }
+      @keyframes pulse-soft {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.85; transform: scale(1.02); }
+      }
+      .animate-pulse-soft {
+        animation: pulse-soft 3s infinite ease-in-out;
+      }
+    </style>
+</head>
+<body class="bg-[#F0F0FF] text-on-surface min-h-screen flex flex-col font-body-lg text-body-lg">
+<!-- TopNavBar (Shared Component) -->
+<header class="bg-surface border-b-4 border-surface-variant flex justify-center items-center w-full px-margin-mobile py-base md:px-margin-desktop sticky top-0 z-50">
+<div class="flex justify-between items-center w-full max-w-7xl">
+<div class="font-headline-md text-headline-md font-extrabold text-primary">RePaIR</div>
+<nav class="hidden md:flex gap-md items-center">
+<a class="text-primary font-bold hover:opacity-80 transition-transform active:translate-y-1" href="#">Activities</a>
+<a class="text-on-surface-variant hover:opacity-80 transition-transform active:translate-y-1" href="#">Progress</a>
+<a class="text-on-surface-variant hover:opacity-80 transition-transform active:translate-y-1" href="#">Support</a>
+</nav>
+<div class="flex items-center gap-base">
+<button class="w-12 h-12 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center chunky-border border-on-primary-fixed-variant">
+<span class="material-symbols-outlined">person</span>
+</button>
+</div>
+</div>
+</header>
+<main class="flex-grow flex items-center justify-center p-margin-mobile md:p-margin-desktop">
+<div class="max-w-7xl w-full grid grid-cols-1 md:grid-cols-2 gap-gutter items-center">
+<!-- Left Side: Character Card -->
+<div class="relative group">
+<div class="bg-white rounded-xl p-md md:p-lg border-b-[6px] border-surface-variant relative overflow-hidden transition-all duration-300">
+<!-- Audio Button -->
+<button class="absolute top-base right-base z-10 w-14 h-14 bg-secondary-container text-on-secondary-container rounded-full flex items-center justify-center chunky-border border-secondary-fixed-dim hover:scale-105 active:scale-95">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">volume_up</span>
+</button>
+<div class="aspect-square w-full flex items-center justify-center">
+<img alt="A friendly cyan robot character holding a camera in a professional photographer pose. The character is set against a clean white background, designed with soft, rounded 3D shapes that evoke a toy-like, tactile quality suitable for a children's educational environment. The lighting is soft and even, highlighting the joy and dependability of the brand's mascot." class="max-h-full object-contain" src="https://lh3.googleusercontent.com/aida/AP1WRLvqKOEdnm4UiUzHfb7tvRpdAwZ6_YHgx1DRG3p1Idzg1MJ2f_MpJGwvxqm14VeW8wzB7G4UjTVIAuy5JRVKB8ctSpXtOSwZdBU1coFe1hMbUKGVU1p2sfJWWF6U9KXuPnK0vS1htwMpqeoxm3Q6CJC3xFXb08YV4GJmJmJAt2OVbKSunSHngB7QwyxkclXWLQLMhKwRnt3Xn7pOJz-LxhiVmIb5l4t_CK_RLIEidXFsubKdwfe3Pwa8RMJs">
+</div>
+<!-- Decorative Background Element -->
+<div class="absolute -bottom-10 -left-10 w-40 h-40 bg-primary-fixed-dim opacity-20 rounded-full blur-3xl"></div>
+</div>
+</div>
+<!-- Right Side: Interface -->
+<div class="flex flex-col items-center md:items-start text-center md:text-left gap-md">
+<h1 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-primary w-full text-center">Look Here!</h1>
+<!-- Viewfinder Container -->
+<div class="relative flex flex-col items-center gap-md w-full">
+<div class="relative w-64 h-64 md:w-80 md:h-80 rounded-full border-[12px] border-tertiary-fixed-dim bg-surface-container-low viewfinder-glow overflow-hidden flex items-center justify-center animate-pulse-soft">
+<!-- Camera Placeholder / Viewfinder -->
+<div class="flex flex-col items-center justify-center text-outline">
+<span class="material-symbols-outlined text-[120px] opacity-40">face</span>
+<div class="absolute inset-0 border-[2px] border-dashed border-tertiary-fixed opacity-30 rounded-full scale-90"></div>
+</div>
+<!-- Overlay Scanning Effect -->
+<div class="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-tertiary-fixed-dim/20 to-transparent animate-[bounce_3s_infinite]"></div>
+</div>
+<!-- Status Pill -->
+<div class="bg-white px-md py-sm rounded-full shadow-md flex items-center gap-base border-2 border-primary-fixed">
+<span class="w-3 h-3 bg-tertiary rounded-full animate-ping"></span>
+<span class="font-label-bold text-label-bold text-on-surface" style="opacity: 1;">Analyzing the magic...</span>
+</div>
+</div>
+<!-- Alternative Link -->
+<button class="mt-base flex items-center gap-xs text-primary font-label-bold text-label-bold hover:underline transition-all active:scale-95 decoration-2 underline-offset-4">
+<span class="material-symbols-outlined filling-icon">keyboard</span>
+                    I'd rather tap my mood
+                </button>
+</div>
+</div>
+</main>
+<!-- Footer (Shared Component) -->
+<footer class="bg-surface-container-low border-t-4 border-surface-variant w-full px-margin-mobile py-lg md:px-margin-desktop flex flex-col md:flex-row justify-between items-center gap-md">
+<div class="flex flex-col items-center md:items-start gap-xs">
+<div class="text-primary font-headline-md text-headline-md font-bold">RePaIR</div>
+<div class="font-label-bold text-label-bold text-on-surface-variant">© 2026 RePaIR</div>
+</div>
+
+</footer>
+<!-- FAB (Suppressed based on context: Details/Action screen) -->
+<script>
+        // Micro-interaction: Mimic 'Magic Mirror' recognition
+        document.addEventListener('DOMContentLoaded', () => {
+            const statusText = document.querySelector('.font-label-bold.text-on-surface');
+            const statusPill = statusText.parentElement;
+            
+            const messages = [
+                "Finding your smile...",
+                "Analyzing the magic...",
+                "Almost there!",
+                "You look wonderful!"
+            ];
+            
+            let i = 0;
+            setInterval(() => {
+                i = (i + 1) % messages.length;
+                statusText.style.opacity = '0';
+                setTimeout(() => {
+                    statusText.textContent = messages[i];
+                    statusText.style.opacity = '1';
+                }, 300);
+            }, 4000);
+        });
+    </script>
+
+
+</body></html>

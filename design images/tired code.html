@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary": "#fff2ce",
+                    "secondary-dim": "#5f4e00",
+                    "tertiary-dim": "#9a2100",
+                    "on-secondary-container": "#594a00",
+                    "surface": "#f8f5ff",
+                    "primary": "#004be2",
+                    "surface-container-low": "#f2efff",
+                    "secondary": "#6d5a00",
+                    "on-error": "#ffefef",
+                    "background": "#f8f5ff",
+                    "on-error-container": "#510017",
+                    "inverse-surface": "#08082f",
+                    "tertiary": "#af2700",
+                    "outline-variant": "#a9a9d7",
+                    "on-surface-variant": "#575881",
+                    "error-container": "#f74b6d",
+                    "surface-variant": "#dbd9ff",
+                    "on-tertiary-fixed-variant": "#721600",
+                    "on-primary-fixed": "#000000",
+                    "error": "#b41340",
+                    "on-tertiary-fixed": "#360600",
+                    "surface-bright": "#f8f5ff",
+                    "outline": "#72739e",
+                    "surface-container-highest": "#dbd9ff",
+                    "on-secondary-fixed-variant": "#645300",
+                    "on-primary-container": "#001b61",
+                    "on-primary": "#f2f1ff",
+                    "secondary-fixed": "#fdd400",
+                    "on-tertiary-container": "#621200",
+                    "primary-fixed": "#809bff",
+                    "on-primary-fixed-variant": "#002376",
+                    "surface-dim": "#d1d0ff",
+                    "on-surface": "#2a2b51",
+                    "surface-container-high": "#e1e0ff",
+                    "primary-container": "#809bff",
+                    "on-tertiary": "#ffefec",
+                    "inverse-on-surface": "#9999c6",
+                    "surface-container": "#e8e6ff",
+                    "surface-tint": "#004be2",
+                    "primary-dim": "#0041c7",
+                    "primary-fixed-dim": "#6c8cff",
+                    "surface-container-lowest": "#ffffff",
+                    "error-dim": "#a70138",
+                    "on-secondary-fixed": "#433700",
+                    "tertiary-fixed": "#ff9479",
+                    "tertiary-container": "#ff9479",
+                    "secondary-fixed-dim": "#edc600",
+                    "on-background": "#2a2b51",
+                    "inverse-primary": "#6889ff",
+                    "tertiary-fixed-dim": "#ff7d5c",
+                    "secondary-container": "#fdd400"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Plus Jakarta Sans"],
+                    "body": ["Plus Jakarta Sans"],
+                    "label": ["Plus Jakarta Sans"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface selection:bg-primary-container min-h-screen flex flex-col overflow-x-hidden">
+<!-- TopNavBar -->
+<header class="bg-[#f8f5ff] dark:bg-slate-950 w-full top-0 px-6 py-4 fixed z-50">
+<div class="flex justify-between items-center w-full max-w-7xl mx-auto">
+<div class="text-2xl font-black tracking-tight text-[#2962FF] dark:text-blue-500"></div>
+<div class="flex items-center gap-4">
+<button class="hover:scale-105 transition-transform duration-200 active:scale-95 transition-all text-[#575881] dark:text-slate-400">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+<button class="hover:scale-105 transition-transform duration-200 active:scale-95 transition-all text-[#575881] dark:text-slate-400">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow flex flex-col items-center justify-center px-6 pb-32 pt-24">
+<!-- Headline Section -->
+<div class="text-center mb-16">
+<h1 class="text-4xl md:text-6xl font-extrabold tracking-tight text-on-surface whitespace-nowrap">How is your <span class="text-[#2962FF]">mood</span> today?</h1>
+</div>
+<!-- Kinetic Interaction Core -->
+<div class="relative flex flex-col md:flex-row items-center justify-center w-full max-w-4xl gap-8 md:gap-24">
+<!-- Robot Character Side -->
+<div class="relative group">
+<div class="absolute -inset-8 bg-surface-container rounded-full blur-3xl opacity-50 group-hover:opacity-80 transition-opacity duration-1000"></div>
+<img alt="sleepy robot character" class="relative object-contain drop-shadow-[0_40px_60px_rgba(42,43,81,0.15)] w-72 h-72 md:w-[400px] md:h-[400px]" data-alt="a friendly 3D robot character with soft rounded edges, sitting peacefully with closed digital eyes, glowing soft blue light, gentle sleepy expression" src="https://lh3.googleusercontent.com/aida/ADBb0ugEG6kVm0_jSg479hJwAOSPFDUXapI4318mT3ku17cIryysJgRx-MhwtZCDJdLLjn1TgZ5JQuCMuxWfgWEws5P227Bb9HCTbwPNe5WLlZokeat9wzYM_69Ds4gE-9HZLBNBlVhjvWaoTOrYu-0ByBVC08b_1a1pd2bQANxNQQbj85KyTNBiWOEu8ao1QVRu_2XSRLmIuPuc3mh6XnUTpetmgOJEHRzqSu3mMHnyFLY45RO9Y8-cGojfg2rk" style="animation-duration: 4s;"/>
+</div>
+<!-- Interaction Side -->
+<div class="flex flex-col items-center justify-center">
+<button class="group relative flex items-center justify-center gap-4 px-12 py-6 bg-surface-container-highest rounded-full border-[4px] border-primary-container shadow-[0_8px_0px_#809bff] hover:shadow-[0_4px_0px_#809bff] active:shadow-none translate-y-[-8px] hover:translate-y-[-4px] active:translate-y-[0px] transition-all duration-200 overflow-hidden">
+<div class="absolute inset-0 bg-primary-container/10 group-hover:bg-primary-container/20 transition-colors"></div>
+<span class="text-5xl md:text-6xl">🥱</span>
+<span class="text-3xl md:text-4xl font-black uppercase tracking-widest text-primary">Tired</span>
+</button>
+</div>
+</div>
+<!-- Subtle breathing space -->
+<div class="mt-16 md:mt-24 max-w-lg text-center opacity-40">
+<span class="material-symbols-outlined text-on-surface-variant animate-bounce" data-icon="expand_more" style="animation-duration: 3s;">expand_more</span>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-center items-center gap-12 pb-8 pt-4 bg-[#f8f5ff]/80 dark:bg-slate-900/80 backdrop-blur-xl shadow-[0_-10px_40px_-15px_rgba(42,43,81,0.1)] rounded-t-[3rem]">
+<!-- Active Tab: Mood -->
+<a class="flex flex-col items-center justify-center bg-[#dbd9ff] dark:bg-blue-900/40 text-[#2962FF] rounded-full px-8 py-3 transition-all duration-300 transform scale-110 shadow-[0_4px_0px_#004be2]" href="#">
+<span class="material-symbols-outlined" data-icon="face" style="font-variation-settings: 'FILL' 1;">face</span>
+<span class="font-['Plus_Jakarta_Sans'] font-medium text-[12px] uppercase tracking-wider mt-1">Mood</span>
+</a>
+<!-- Inactive Tab: History -->
+<a class="flex flex-col items-center justify-center text-[#575881] dark:text-slate-500 px-6 py-2 hover:text-[#2962FF] transition-colors active:translate-y-1 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span class="font-['Plus_Jakarta_Sans'] font-medium text-[12px] uppercase tracking-wider mt-1">History</span>
+</a>
+</nav>
+</body></html>

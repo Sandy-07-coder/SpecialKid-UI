@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MoodBloom - How is your mood today?</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+                  "outline-variant": "#a9a9d7",
+                  "on-secondary": "#fff2ce",
+                  "surface-container-highest": "#dbd9ff",
+                  "on-error": "#ffefef",
+                  "inverse-primary": "#6889ff",
+                  "primary": "#004be2",
+                  "secondary-container": "#fdd400",
+                  "secondary": "#6d5a00",
+                  "on-tertiary-container": "#621200",
+                  "on-primary-fixed-variant": "#002376",
+                  "tertiary": "#af2700",
+                  "on-tertiary-fixed-variant": "#721600",
+                  "on-primary": "#f2f1ff",
+                  "surface-container-high": "#e1e0ff",
+                  "on-error-container": "#510017",
+                  "error": "#b41340",
+                  "secondary-dim": "#5f4e00",
+                  "background": "#f8f5ff",
+                  "surface-variant": "#dbd9ff",
+                  "secondary-fixed": "#fdd400",
+                  "error-container": "#f74b6d",
+                  "surface-container-lowest": "#ffffff",
+                  "on-secondary-fixed": "#433700",
+                  "on-surface": "#2a2b51",
+                  "on-primary-fixed": "#000000",
+                  "outline": "#72739e",
+                  "on-background": "#2a2b51",
+                  "surface-dim": "#d1d0ff",
+                  "inverse-on-surface": "#9999c6",
+                  "on-tertiary": "#ffefec",
+                  "surface-bright": "#f8f5ff",
+                  "on-secondary-fixed-variant": "#645300",
+                  "tertiary-fixed-dim": "#ff7d5c",
+                  "tertiary-fixed": "#ff9479",
+                  "on-primary-container": "#001b61",
+                  "primary-fixed-dim": "#6c8cff",
+                  "primary-container": "#809bff",
+                  "surface": "#f8f5ff",
+                  "on-secondary-container": "#594a00",
+                  "on-tertiary-fixed": "#360600",
+                  "surface-container": "#e8e6ff",
+                  "tertiary-dim": "#9a2100",
+                  "tertiary-container": "#ff9479",
+                  "inverse-surface": "#08082f",
+                  "error-dim": "#a70138",
+                  "primary-fixed": "#809bff",
+                  "secondary-fixed-dim": "#edc600",
+                  "on-surface-variant": "#575881",
+                  "surface-tint": "#004be2",
+                  "primary-dim": "#0041c7",
+                  "surface-container-low": "#f2efff"
+          },
+          "borderRadius": {
+                  "DEFAULT": "1rem",
+                  "lg": "2rem",
+                  "xl": "3rem",
+                  "full": "9999px"
+          },
+          "fontFamily": {
+                  "headline": ["Plus Jakarta Sans"],
+                  "body": ["Plus Jakarta Sans"],
+                  "label": ["Plus Jakarta Sans"]
+          }
+        },
+      },
+    }
+  </script>
+<style>body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .angry-glow {
+      box-shadow: 0 20px 50px -15px rgba(41, 98, 255, 0.3);
+    }</style>
+</head>
+<body class="bg-[#f8f5ff] text-on-surface min-h-screen flex flex-col overflow-x-hidden">
+<!-- TopAppBar -->
+<header class="w-full top-0 sticky bg-[#f8f5ff] dark:bg-slate-950 flex justify-end items-center px-6 py-4 z-40 bg-gradient-to-b from-[#f2efff] to-transparent">
+<div class="flex items-center gap-4">
+<button class="p-2 rounded-full hover:bg-[#dbd9ff]/50 dark:hover:bg-slate-800 transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined text-[#575881] dark:text-slate-400" data-icon="settings">settings</span>
+</button>
+<div class="w-10 h-10 rounded-full bg-surface-container-highest overflow-hidden border-2 border-primary-container">
+<img alt="User Profile Avatar" class="w-full h-full object-cover" data-alt="High-quality 3D rendered avatar icon of a smiling friendly person with bright studio lighting and soft shadows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB_hf1EsN0jMyL8kqSHxiNlEjimjmu9dN_xRUw3gsJCDFq2TC4SnQKkih82oWk9LDTbV3QKBiSXhzCBkk8oTtZ3egnzCbrFKOiFDURb7bbRCzbKs6ooAyvoV0UCTuf8KYleklISwQ9kofdLbAyFC6J0IJQY6gylltC2pTWYO_MfJXo1vrmbxFbGBCrcHvOKj7FzcttXgSi25Wvhxl5qg4X9VaH88zNoN9MDSk_v8D1Kv5Z7AgmEwStL-1L8JbE0w2vTM3c_yABJxmfT"/>
+</div>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="flex-grow flex flex-col items-center justify-center px-6 pb-32">
+<!-- Editorial Headline - Moved slightly higher by reducing mb and adjusting main vertical alignment -->
+<div class="mb-16 text-center px-4 -mt-16">
+<h1 class="text-[3.5rem] md:text-[4rem] font-extrabold text-on-surface tracking-tighter leading-[1.1] mb-2">How is your <span class="text-[#2962FF]">mood</span> today?</h1>
+</div>
+<!-- Central Interaction Block - Perfectly aligned and centered -->
+<div class="relative w-full max-w-5xl flex flex-col md:flex-row items-center justify-center gap-12 md:gap-24">
+<!-- Angry Robot Image Container - Enlarged by about 20% (from w-64/80 to w-80/96) -->
+<div class="order-2 md:order-1 relative group">
+<div class="absolute -inset-4 bg-error-container/10 rounded-full blur-3xl opacity-50 group-hover:opacity-80 transition-opacity duration-700"></div>
+<img alt="Angry robot character" class="relative z-10 w-80 md:w-96 h-auto drop-shadow-[0_20px_40px_rgba(42,43,81,0.1)] transition-transform duration-500 hover:rotate-2 rounded-3xl" data-alt="A moody, cute 3D robot character with crossed arms and a grumpy expression" src="https://lh3.googleusercontent.com/aida/ADBb0uiWp-FKDn68sy1GI-2U90OjX3JLC3fX3Wu0dkXMukinOCD55xyz2oP58CPA7WpLs0L88fQ9nESmtfHPGSMCWzVUqid_pVIBRMo-iKoz2Y-Nu-l3wLh7BJKjurwxK11tK1ZQUsZOiOH3s8AFOcqnfJ1sFYnNRMArVCbLLZd23R3OWtH-OxGd9rxlAGxRPKPZ_AO2mNycvZcIP_bEVaj3Rie5E4cZFNmcgBooQk3OtMrfZAuRyvIr70TaR0s"/>
+</div>
+<!-- Angry Action Button -->
+<div class="order-1 md:order-2 flex flex-col items-center justify-center">
+<button class="group relative bg-error text-on-error px-16 py-8 rounded-full text-4xl font-black tracking-wide border-[4px] border-on-error-container shadow-[0_8px_0px_#510017] hover:shadow-[0_4px_0px_#510017] hover:translate-y-[4px] active:translate-y-[8px] active:shadow-none transition-all duration-150 angry-glow flex items-center gap-4 bg-primary text-white border-white/20 shadow-[0_8px_0px_#002376] hover:shadow-[0_4px_0px_#002376]">
+<span>😡 Angry</span>
+<!-- Subtle Inner Shine -->
+<div class="absolute top-2 left-6 right-6 h-3 bg-white/20 rounded-full blur-[2px]"></div>
+</button>
+</div>
+</div>
+<!-- Asymmetric Background Elements -->
+<div class="fixed top-1/4 left-[10%] w-64 h-64 bg-primary-container/10 rounded-full blur-[100px] -z-10"></div>
+<div class="fixed bottom-1/4 right-[10%] w-80 h-80 bg-secondary-container/5 rounded-full blur-[120px] -z-10"></div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-center items-center px-8 pb-8 pt-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl z-50 rounded-t-[3rem] border-t-4 border-[#2962FF]/10 shadow-[0_-10px_40px_-15px_rgba(42,43,81,0.1)]">
+<div class="flex gap-12">
+<!-- Active: Mood -->
+<a class="flex flex-col items-center justify-center bg-[#dbd9ff] dark:bg-blue-900/40 text-[#2962FF] rounded-full px-10 py-3 shadow-[0_4px_0px_#809bff] active:translate-y-1 transition-all duration-100" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="mood" style="font-variation-settings: 'FILL' 1;">mood</span>
+<span class="text-[12px] font-bold uppercase tracking-wider">Mood</span>
+</a>
+<!-- Inactive: History -->
+<a class="flex flex-col items-center justify-center text-[#575881] dark:text-slate-400 px-10 py-3 hover:text-[#2962FF] transition-all active:translate-y-1 duration-100" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="history">history</span>
+<span class="text-[12px] font-bold uppercase tracking-wider">History</span>
+</a>
+</div>
+</nav>
+</body></html>
