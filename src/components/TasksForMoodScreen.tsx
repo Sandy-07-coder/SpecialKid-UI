@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ArrowLeft, CheckCircle2, Clock, ImageOff, Loader2 } from 'lucide-react';
+import { CheckCircle2, Clock, Loader2 } from 'lucide-react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -15,22 +15,39 @@ interface Task {
 
 interface TasksForMoodScreenProps {
   moodId: string;       // 'happy' | 'sad' | 'angry' | 'tired'
-  moodLabel: string;    // Display name e.g. "Happy!"
+  moodLabel: string;    // Display name e.g. "Happy"
   moodEmoji: string;    // e.g. "😊"
   token: string;        // Student JWT
   onBack: () => void;
 }
 
-// ─── Mood colour palette (matches MoodScreen) ─────────────────────────────────
+// ─── Mood accent colours ───────────────────────────────────────────────────────
 
-const MOOD_PALETTE: Record<string, { accent: string; bg: string; badge: string; badgeText: string }> = {
-  happy: { accent: '#004be2', bg: '#f8f5ff', badge: '#dbd9ff', badgeText: '#2a2b51' },
-  sad: { accent: '#2962FF', bg: '#f0f7ff', badge: '#d9ebff', badgeText: '#2a2b51' },
-  angry: { accent: '#d32f2f', bg: '#fff5f5', badge: '#ffcdd2', badgeText: '#b71c1c' },
-  tired: { accent: '#5c6bc0', bg: '#f3f4fb', badge: '#c5cae9', badgeText: '#283593' },
+const MOOD_ACCENT: Record<string, { accent: string; shadow: string; cardBorder: string; cardClassName: string }> = {
+  happy:  { accent: '#2962FF', shadow: '#0038aa', cardBorder: 'border-[#fdd400]',   cardClassName: 'border-[#fdd400] bg-[#fffdf0]'   },
+  sad:    { accent: '#2962FF', shadow: '#0038aa', cardBorder: 'border-[#90caf9]',   cardClassName: 'border-[#90caf9] bg-[#f0f7ff]'   },
+  angry:  { accent: '#d32f2f', shadow: '#7f0000', cardBorder: 'border-[#ef9a9a]',   cardClassName: 'border-[#ef9a9a] bg-[#fff5f5]'   },
+  tired:  { accent: '#5c6bc0', shadow: '#26418f', cardBorder: 'border-[#c5cae9]',   cardClassName: 'border-[#c5cae9] bg-[#f3f4fb]'   },
+};
+
+const MOOD_EMOJI_COLOR: Record<string, string> = {
+  happy: '#fdd400',
+  sad:   '#90caf9',
+  angry: '#ef5350',
+  tired: '#9fa8da',
 };
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function speak(text: string) {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.rate = 0.9;
+  window.speechSynthesis.speak(utter);
+}
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -41,13 +58,15 @@ export const TasksForMoodScreen: React.FC<TasksForMoodScreenProps> = ({
   token,
   onBack,
 }) => {
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const [tasks, setTasks]       = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [error, setError]       = useState<string | null>(null);
+  const [activeSlide, setActiveSlide] = useState(0);
 
-  const palette = MOOD_PALETTE[moodId] ?? MOOD_PALETTE.happy;
+  const palette     = MOOD_ACCENT[moodId] ?? MOOD_ACCENT.happy;
+  const emojiColor  = MOOD_EMOJI_COLOR[moodId] ?? '#fdd400';
 
+  // ── Fetch ─────────────────────────────────────────────────────────────────
   useEffect(() => {
     const fetchTasks = async () => {
       setIsLoading(true);
@@ -60,186 +79,204 @@ export const TasksForMoodScreen: React.FC<TasksForMoodScreenProps> = ({
         if (!res.ok) throw new Error('Could not load tasks.');
         const data = await res.json();
         setTasks(data.tasks ?? []);
+        setActiveSlide(0);
       } catch (err: unknown) {
         setError(err instanceof Error ? err.message : 'Something went wrong.');
       } finally {
         setIsLoading(false);
       }
     };
-
     fetchTasks();
   }, [moodId, token]);
 
-  const statusIcon = (status: Task['status']) =>
-    status === 'Completed' ? (
-      <CheckCircle2 className="h-5 w-5 flex-shrink-0" style={{ color: '#16a34a' }} />
-    ) : (
-      <Clock className="h-5 w-5 flex-shrink-0" style={{ color: palette.accent }} />
-    );
+  // ── Slide helpers ─────────────────────────────────────────────────────────
+  const currentTask = tasks[activeSlide] ?? null;
 
+  const handleNext = () => {
+    if (activeSlide < tasks.length - 1) {
+      setActiveSlide((p) => p + 1);
+    } else {
+      onBack(); // finished all tasks
+    }
+  };
+
+  const isLast    = activeSlide === tasks.length - 1;
+  const isCompleted = currentTask?.status === 'Completed';
+
+  // ── Render ────────────────────────────────────────────────────────────────
   return (
-    <div
-      className="min-h-screen flex flex-col font-sans"
-      style={{ background: palette.bg, fontFamily: "'Plus Jakarta Sans', sans-serif" }}
-    >
-      {/* ── Header ─────────────────────────────────────────────────────────── */}
-      <header
-        className="w-full fixed top-0 z-50 flex justify-between items-center px-6 py-4 border-b"
-        style={{ background: '#f8f5ff', borderColor: 'rgba(219,217,255,0.6)', backdropFilter: 'blur(12px)' }}
-      >
-        <button
-          onClick={onBack}
-          className="flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition hover:bg-[#f2efff]"
-          style={{ borderColor: '#dbd9ff', color: '#2a2b51' }}
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back
-        </button>
+    <div className="min-h-screen w-full bg-[#f8f5ff] text-[#2a2b51]">
 
-        <div className="flex items-center gap-2">
-          <span className="text-2xl">{moodEmoji}</span>
-          <span className="font-black text-xl" style={{ color: palette.accent }}>
-            {moodLabel} Tasks
-          </span>
-        </div>
+      {/* ── Header ─────────────────────────────────────────────────────────── */}
+      <header className="flex w-full items-center justify-between px-6 py-6 sm:px-8">
+        <div className="text-2xl font-black tracking-tight text-[#2962FF]">RePaIR</div>
+        <div className="w-[80px]" />
       </header>
 
-      {/* ── Body ───────────────────────────────────────────────────────────── */}
-      <main className="flex-grow px-4 sm:px-6 lg:px-8 pt-28 pb-12 max-w-3xl mx-auto w-full">
-        <motion.h1
-          initial={{ opacity: 0, y: -16 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-3xl sm:text-4xl font-black mb-2 text-center"
-          style={{ color: '#2a2b51' }}
-        >
-          Today's Tasks
-        </motion.h1>
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1, transition: { delay: 0.1 } }}
-          className="text-center text-sm mb-8 font-semibold"
-          style={{ color: '#575881' }}
-        >
-          Feeling {moodLabel} — here's what to do!
-        </motion.p>
+      {/* ── Main ───────────────────────────────────────────────────────────── */}
+      <main className="mx-auto flex min-h-[calc(100vh-96px)] w-full max-w-5xl flex-col items-center px-4 pb-16 sm:px-6 lg:px-8">
 
-        {/* Loading */}
+        {/* Title */}
+        <h1 className="mb-10 text-center text-3xl font-extrabold tracking-tight text-[#2a2b51] sm:text-5xl">
+          Today I feel{' '}
+          <span style={{ color: emojiColor }} className="drop-shadow-sm">
+            {moodLabel}
+          </span>
+          {' '}{moodEmoji}
+        </h1>
+
+        {/* ── Loading ─────────────────────────────────────────────────────── */}
         {isLoading && (
-          <div className="flex flex-col items-center justify-center py-24 gap-4">
-            <Loader2 className="h-10 w-10 animate-spin" style={{ color: palette.accent }} />
-            <p className="text-sm font-semibold" style={{ color: '#575881' }}>
-              Loading your tasks…
-            </p>
+          <div className="flex flex-col items-center justify-center py-32 gap-4">
+            <Loader2
+              className="h-12 w-12 animate-spin"
+              style={{ color: palette.accent }}
+            />
+            <p className="text-sm font-semibold text-[#575881]">Loading your tasks…</p>
           </div>
         )}
 
-        {/* Error */}
+        {/* ── Error ───────────────────────────────────────────────────────── */}
         {!isLoading && error && (
-          <div
-            className="rounded-2xl border p-6 text-center"
-            style={{ borderColor: '#ffcdd2', background: '#fff5f5' }}
-          >
-            <p className="font-bold text-lg mb-1" style={{ color: '#b71c1c' }}>
-              Oops! Something went wrong.
-            </p>
-            <p className="text-sm" style={{ color: '#c62828' }}>
-              {error}
-            </p>
+          <div className="rounded-2xl border border-[#ffcdd2] bg-[#fff5f5] p-8 text-center">
+            <p className="font-bold text-lg mb-1 text-[#b71c1c]">Oops! Something went wrong.</p>
+            <p className="text-sm text-[#c62828]">{error}</p>
           </div>
         )}
 
-        {/* Empty state */}
+        {/* ── Empty ───────────────────────────────────────────────────────── */}
         {!isLoading && !error && tasks.length === 0 && (
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="flex flex-col items-center justify-center py-20 text-center gap-5"
+            className="flex flex-col items-center justify-center py-24 gap-5 text-center"
           >
-            <span className="text-7xl">🎉</span>
-            <p className="text-2xl font-black" style={{ color: '#2a2b51' }}>
-              No tasks for this mood yet!
-            </p>
-            <p className="text-sm font-medium" style={{ color: '#575881' }}>
-              Your specialist will add tasks here soon.
-            </p>
+            <span className="text-8xl">🎉</span>
+            <p className="text-2xl font-black text-[#2a2b51]">No tasks for this mood yet!</p>
+            <p className="text-sm font-medium text-[#575881]">Your specialist will add tasks here soon.</p>
+            <button
+              type="button"
+              onClick={onBack}
+              className="mt-4 flex items-center justify-center rounded-full px-8 py-4 text-xl font-black text-white shadow-[0_8px_0_#0038aa] transition-all hover:scale-[1.02] active:translate-y-1"
+              style={{ background: palette.accent, boxShadow: `0 8px 0 ${palette.shadow}` }}
+            >
+              Go Back
+            </button>
           </motion.div>
         )}
 
-        {/* Task list */}
-        {!isLoading && !error && tasks.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1, transition: { delay: 0.15 } }}
-            className="space-y-4"
-          >
-            {tasks.map((task, i) => (
+        {/* ── Slideshow ───────────────────────────────────────────────────── */}
+        {!isLoading && !error && tasks.length > 0 && currentTask && (
+          <>
+            <AnimatePresence mode="wait">
               <motion.div
-                key={task._id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0, transition: { delay: i * 0.07 } }}
-                className="rounded-2xl border bg-white shadow-sm overflow-hidden"
-                style={{ borderColor: 'rgba(219,217,255,0.7)' }}
+                key={currentTask._id}
+                initial={{ opacity: 0, x: 24 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -24 }}
+                transition={{ duration: 0.3, ease: 'easeOut' }}
+                className="relative mx-auto flex w-full max-w-5xl flex-col items-center rounded-[1.25rem] bg-white p-8 shadow-[0_20px_60px_rgba(42,43,81,0.08)] transition-all duration-500 hover:shadow-[0_30px_80px_rgba(42,43,81,0.12)] sm:p-10 md:p-12"
               >
-                {/* Task image */}
-                {task.imageUrl && (
-                  <div className="w-full h-40 sm:h-52 overflow-hidden bg-gray-50">
-                    <img
-                      src={task.imageUrl}
-                      alt={task.title}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        (e.currentTarget as HTMLImageElement).style.display = 'none';
-                      }}
-                    />
+                {/* Card header: title + audio button */}
+                <div className="mb-8 flex items-center gap-4 sm:gap-6">
+                  <h2 className="text-3xl font-black uppercase tracking-tighter text-[#2a2b51] sm:text-4xl md:text-5xl">
+                    {currentTask.title}
+                  </h2>
+                  <button
+                    type="button"
+                    onClick={() => speak(currentTask.title + (currentTask.description ? '. ' + currentTask.description : ''))}
+                    className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full text-white shadow-[0_8px_0_#0038aa] transition-all hover:scale-105 active:translate-y-1"
+                    style={{ background: palette.accent, boxShadow: `0 8px 0 ${palette.shadow}` }}
+                    aria-label="Play audio"
+                  >
+                    <span className="material-symbols-outlined text-3xl">volume_up</span>
+                  </button>
+                </div>
+
+                {/* Image / placeholder area */}
+                <div className={`mb-10 flex w-full items-center justify-center overflow-hidden rounded-[1rem] border-4 p-4 sm:p-6 ${palette.cardClassName}`}>
+                  <div className="relative w-full max-w-3xl flex items-center justify-center min-h-[220px]">
+                    {currentTask.imageUrl ? (
+                      <img
+                        alt={currentTask.title}
+                        className="h-full w-full max-h-72 object-contain p-2 sm:p-4"
+                        src={currentTask.imageUrl}
+                        onError={(e) => {
+                          (e.currentTarget as HTMLImageElement).style.display = 'none';
+                        }}
+                      />
+                    ) : (
+                      <div className="flex flex-col items-center gap-3 py-10 opacity-40">
+                        <span className="text-7xl">{moodEmoji}</span>
+                        <span className="text-sm font-semibold text-[#2a2b51]">No image for this task</span>
+                      </div>
+                    )}
+
+                    {/* Status badge overlay */}
+                    <div className="absolute top-2 right-2">
+                      {isCompleted ? (
+                        <div className="flex items-center gap-1 rounded-full bg-green-100 px-3 py-1 text-xs font-bold text-green-700">
+                          <CheckCircle2 className="h-3.5 w-3.5" />
+                          Done
+                        </div>
+                      ) : (
+                        <div
+                          className="flex items-center gap-1 rounded-full px-3 py-1 text-xs font-bold"
+                          style={{ background: palette.accent + '1a', color: palette.accent }}
+                        >
+                          <Clock className="h-3.5 w-3.5" />
+                          {currentTask.status}
+                        </div>
+                      )}
+                    </div>
                   </div>
+                </div>
+
+                {/* Description (if any) */}
+                {currentTask.description && (
+                  <p className="mb-8 text-center text-base leading-relaxed text-[#464555] max-w-lg">
+                    {currentTask.description}
+                  </p>
                 )}
 
-                {/* Task header */}
+                {/* Action button */}
                 <button
-                  className="w-full flex items-center justify-between gap-3 px-5 py-4 text-left"
-                  onClick={() => setExpandedId(expandedId === task._id ? null : task._id)}
+                  type="button"
+                  onClick={handleNext}
+                  className="flex w-full max-w-md items-center justify-center rounded-full px-6 py-5 text-2xl font-black text-white transition-all hover:scale-[1.02] active:translate-y-1"
+                  style={{
+                    background: palette.accent,
+                    boxShadow: `0 8px 0 ${palette.shadow}`,
+                  }}
                 >
-                  <div className="flex items-center gap-3 min-w-0">
-                    {statusIcon(task.status)}
-                    <span
-                      className="font-black text-lg leading-tight truncate"
-                      style={{ color: '#2a2b51' }}
-                    >
-                      {task.title}
-                    </span>
-                  </div>
-                  {/* Status badge */}
-                  <span
-                    className="flex-shrink-0 rounded-full px-3 py-1 text-xs font-bold"
-                    style={{ background: palette.badge, color: palette.badgeText }}
-                  >
-                    {task.status}
-                  </span>
+                  {isLast ? '🎉 All Done!' : 'Next Task →'}
                 </button>
-
-                {/* Expanded description */}
-                <AnimatePresence>
-                  {expandedId === task._id && task.description && (
-                    <motion.div
-                      key="desc"
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.25 }}
-                      className="overflow-hidden"
-                    >
-                      <div
-                        className="px-5 pb-5 pt-1 text-base leading-relaxed border-t"
-                        style={{ color: '#464555', borderColor: 'rgba(219,217,255,0.5)' }}
-                      >
-                        {task.description}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
               </motion.div>
-            ))}
-          </motion.div>
+            </AnimatePresence>
+
+            {/* Progress dots */}
+            <div className="mt-8 flex gap-4">
+              {tasks.map((_, index) => (
+                <button
+                  key={index}
+                  type="button"
+                  onClick={() => setActiveSlide(index)}
+                  className={`h-3 rounded-full transition-all duration-300 ${
+                    activeSlide === index
+                      ? 'w-8 shadow-[0_0_15px_rgba(41,98,255,0.4)]'
+                      : 'w-3 bg-[#dbd9ff]'
+                  }`}
+                  style={activeSlide === index ? { background: palette.accent } : {}}
+                  aria-label={`Go to task ${index + 1}`}
+                />
+              ))}
+            </div>
+
+            {/* Task counter */}
+            <p className="mt-4 text-sm font-semibold text-[#575881]">
+              Task {activeSlide + 1} of {tasks.length}
+            </p>
+          </>
         )}
       </main>
     </div>
